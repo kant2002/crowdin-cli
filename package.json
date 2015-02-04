@@ -1,0 +1,31 @@
+{
+  "name": "crowdin-cli",
+  "version": "0.0.1",
+  "description": "NodeJS client for Crowdin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kant2002/crowdin-cli.git"
+  },
+  "keywords": [
+    "Crowdin",
+    "translation",
+    "localization"
+  ],
+  "bin": {
+    "crowdin-cli": "./bin/crowdin-cli.js"
+  },
+  "author": "Andrey Kurdyumov <kant2002@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kant2002/crowdin-cli/issues"
+  },
+  "homepage": "https://github.com/kant2002/crowdin-cli",
+  "dependencies": {
+    "request": "^2.53.0",
+    "yamljs": "^0.2.1"
+  }
+}
