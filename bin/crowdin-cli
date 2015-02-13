@@ -58,6 +58,7 @@ function getApi(config) {
         api.setKey(config.base_url);
     }
 
+    api.setKey(config.api_key);
     return api;
 }
 

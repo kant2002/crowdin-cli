@@ -4,39 +4,13 @@
 var https = require('https'),
     request = require('request'),
     apiKey,
-    baseUrl = 'https://api.crowdin.com';
+    baseUrl = 'https://api.crowdin.com',
+    verbose = 0;
 
 function validateKey() {
     if (apiKey === undefined) {
         throw new Error("Please specify CrowdIn API key.");
     }
-}
-
-function doApiCall(method, apiUrl, callback) {
-    var options,
-        requestCallback;
-    validateKey();
-
-    requestCallback = function (response) {
-        var str = '';
-
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-            str += chunk;
-        });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-            callback(JSON.parse(str));
-        });
-    };
-
-    options = {
-        host: 'api.crowdin.com',
-        path: '/api/' + apiUrl + '?json=true&key=' + apiKey,
-        method: method
-    };
-    https.request(options, requestCallback).end();
 }
 
 function getApiCall(apiUrl, callback) {
@@ -65,11 +39,19 @@ function postApiCall(apiUrl, callback) {
 
 function getApiRequest(apiUrl, callback) {
     validateKey();
-    var url = baseUrl + '/api/' + apiUrl + '?key=' + apiKey;
+    var url = baseUrl + '/api/' + apiUrl + '?key=' + apiKey + '&json';
+    if (verbose > 0) {
+        console.log("Doing request:");
+        console.log(url);
+    }
+
     return request(url);
 }
 
 module.exports = {
+    setVerbose: function (newValue) {
+        verbose = newValue;
+    },
     setBasePath: function (newBasePath) {
         baseUrl = newBasePath;
     },
@@ -96,5 +78,13 @@ module.exports = {
     },
     supportedLanguages: function (callback) {
         getApiCall('supported-languages', callback);
+    },
+    /**
+    * Build ZIP archive with the latest translations. Please note that this method can be invoked only once per 30 minutes (there is no such
+    * restriction for organization plans). Also API call will be ignored if there were no changes in the project since previous export. 
+    * You can see whether ZIP archive with latest translations was actually build by status attribute ("built" or "skipped") returned in response.
+    */
+    exportTranslations: function (projectName, callback) {
+        getApiCall('project/' + projectName + '/export', callback);
     }
 };
