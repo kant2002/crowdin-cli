@@ -1,0 +1,97 @@
+//#!/usr/bin/env node
+/*jslint node:true, nomen: true */
+'use strict';
+
+var yargs = require('yargs')
+    .option('v', {
+        alias : 'verbose',
+        describe: 'Increase verbosity level of produced output',
+        type: 'boolean'
+    })
+    .option('l', {
+        alias : 'language',
+        describe: 'If the option is defined the translations will be downloaded for single specified language. Otherwise (by default) translations are downloaded for all languages',
+        type: 'string',
+        'default': 'all'
+    })
+    .option('o', {
+        alias : 'output',
+        describe: 'Output file to which download translations',
+        type: 'string'
+    })
+    .usage('Usage: $0 [-v] [command] [command options] [arguments...]\n' +
+        '\n' +
+        'crowdin-cli is a command line tool that allows you to manage and synchronize your localization resources with Crowdin project\n' +
+        '\n' +
+        '    This tool requires configuration file to be created. See\n' +
+        '    http://crowdin.com/page/cli-tool#configuration-file for more details.\n' +
+        '    <command>: Command which should be performed.\n' +
+        '\n' +
+        'Commands:\n' +
+        '    download: Download translated content.');
+var argv = yargs.argv;
+var api = require('../api'),
+    YAML = require('yamljs'),
+    fs = require('fs'),
+    configFileName = 'crowdin.yaml';
+
+function getConfig() {
+    if (!fs.existsSync(configFileName)) {
+        console.log("Configuration file is missing.");
+        process.exit(1);
+    }
+
+    var content = fs.readFileSync(configFileName, 'utf8'),
+        config = YAML.parse(content),
+        base_path = config.base_path || '.';
+
+    if (config.api_key === undefined) {
+        console.log("API key is missing.");
+        process.exit(1);
+    }
+    
+    return config;
+}
+
+function getApi(config) {
+    if (config.base_url !== undefined) {
+        api.setKey(config.base_url);
+    }
+
+    return api;
+}
+
+if (argv.help) {
+    yargs.showHelp();
+    process.exit(1);
+}
+var command = argv._.shift() || 'help',
+    subcommandArgv,
+    commandArgs = argv._ || [];
+switch (command) {
+case 'download':
+    var language = argv.language,
+        config = getConfig(),
+        output_file,
+        translation_request;
+    getApi(config);
+    if (language === undefined) {
+        console.log("Downloading all languages");
+        output_file = argv.output || 'all.zip';
+        translation_request = api.downloadAllTranslations(config.project_identifier);
+    } else {
+        console.log("Downloading language " + language);
+        output_file = argv.output || language + '.zip';
+        translation_request = api.downloadTranslations(config.project_identifier, language);
+    }
+
+    console.log("Output saving to " + output_file);
+    translation_request.pipe(fs.createWriteStream(output_file));
+    break;
+case 'help':
+    yargs.showHelp();
+    process.exit(1);
+    break;
+default:
+    console.error('The command is not supported');
+}

@@ -16,7 +16,7 @@
     "localization"
   ],
   "bin": {
-    "crowdin-cli": "./bin/crowdin-cli.js"
+    "crowdin-cli": "./bin/crowdin-cli"
   },
   "author": "Andrey Kurdyumov <kant2002@gmail.com>",
   "license": "MIT",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/kant2002/crowdin-cli",
   "dependencies": {
     "request": "^2.53.0",
-    "yamljs": "^0.2.1"
+    "yamljs": "^0.2.1",
+    "yargs": "^2.3.0"
   }
 }

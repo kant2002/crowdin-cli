@@ -25,13 +25,13 @@ if (config.base_url !== undefined) {
 }
 
 api.setKey(config.api_key);
-api.projectInfo(config.project_identifier, function (err, data) {
+/*api.projectInfo(config.project_identifier, function (err, data) {
     console.log(data);
-});
+});*/
 /*api.supportedLanguages(function (err, data) {
     console.log(data);
 });*/
-//api.downloadTranslations(config.project_identifier, 'ru').pipe(fs.createWriteStream('ru.zip'));
-//api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
+//api.downloadTranslations(config.project_identifier, 'es').pipe(fs.createWriteStream('es.zip'));
+api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
 
 module.exports = api;
