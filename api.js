@@ -16,6 +16,11 @@ function validateKey() {
 function getApiCall(apiUrl, callback) {
     validateKey();
     var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey;
+    if (verbose > 0) {
+        console.log("Doing GET request:");
+        console.log(url);
+    }
+
     return request.get(url, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(null, JSON.parse(body));
@@ -28,6 +33,11 @@ function getApiCall(apiUrl, callback) {
 function postApiCall(apiUrl, callback) {
     validateKey();
     var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey;
+    if (verbose > 0) {
+        console.log("Doing POST request:");
+        console.log(url);
+    }
+
     return request.post(url, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             callback(null, JSON.parse(body));
@@ -86,5 +96,11 @@ module.exports = {
     */
     exportTranslations: function (projectName, callback) {
         getApiCall('project/' + projectName + '/export', callback);
+    },
+    /**
+    * Download Crowdin project glossaries as TBX file.
+    */
+    downloadGlossary: function (projectName) {
+        return getApiRequest('project/' + projectName + '/download-glossary');
     }
 };

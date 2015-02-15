@@ -28,7 +28,9 @@ var yargs = require('yargs')
         '    <command>: Command which should be performed.\n' +
         '\n' +
         'Commands:\n' +
-        '    download: Download translated content.');
+        '    download: Download translated content.\n' +
+        '    export: Export latest translated content, so it could be downloaded.\n' +
+        '    downloadGlossary: Download project glossaries as TBX file.');
 var argv = yargs.argv;
 var api = require('../api'),
     YAML = require('yamljs'),
@@ -69,6 +71,10 @@ if (argv.help) {
 var command = argv._.shift() || 'help',
     subcommandArgv,
     commandArgs = argv._ || [];
+if (argv.verbose) {
+    api.setVerbose(argv.verbose);
+}
+
 switch (command) {
 case 'download':
     var language = argv.language,
@@ -88,6 +94,30 @@ case 'download':
 
     console.log("Output saving to " + output_file);
     translation_request.pipe(fs.createWriteStream(output_file));
+    break;
+case 'downloadGlossary':
+    var config = getConfig(),
+        output_file,
+        translationGlossary_request;
+    getApi(config);
+    console.log("Downloading glossary");
+    output_file = argv.output || config.project_identifier + '.tbx';
+    translationGlossary_request = api.downloadGlossary(config.project_identifier);
+
+    console.log("Output saving to " + output_file);
+    translationGlossary_request.pipe(fs.createWriteStream(output_file));
+    break;
+case 'export':
+    var config = getConfig();
+    getApi(config);
+    console.log("Exporting translations");
+    api.exportTranslations(config.project_identifier, function (err, status) {
+        if (err) {
+            throw err;
+        }
+        
+        console.log(status);
+    });
     break;
 case 'help':
     yargs.showHelp();
