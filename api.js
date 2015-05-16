@@ -148,9 +148,6 @@ module.exports = {
     downloadAllTranslations: function (projectName) {
         return getApiRequest('project/' + projectName + '/download/all.zip');
     },
-    supportedLanguages: function (callback) {
-        getApiCall('supported-languages', callback);
-    },
     /**
     * Build ZIP archive with the latest translations. Please note that this method can be invoked only once per 30 minutes (there is no such
     * restriction for organization plans). Also API call will be ignored if there were no changes in the project since previous export. 
@@ -158,6 +155,51 @@ module.exports = {
     */
     exportTranslations: function (projectName, callback) {
         getApiCall('project/' + projectName + '/export', callback);
+    },
+    /**
+    * Edit Crowdin project
+    * @param projectName {String} Name of the project to change
+    * @param params {Object} New parameters for the project.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    editProject: function (projectName, params, callback) {
+        return postApiCallWithFormData('project/' + projectName + '/edit-project', params, callback);
+    },
+    /**
+    * Delete Crowdin project with all translations.
+    * @param projectName {String} Name of the project to delete.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    deleteProject: function (projectName, callback) {
+        return postApiCall('project/' + projectName + '/delete-project', callback);
+    },
+    /**
+    * Add directory to Crowdin project.
+    * @param projectName {String} Should contain the project identifier.
+    * @param directory {String} Directory name (with path if nested directory should be created).
+    * @param callback {Function} Callback to call on function completition.
+    */
+    createDirectory: function (projectName, directory, callback) {
+        return postApiCall('project/' + projectName + '/add-directory', { name: directory}, callback);
+    },
+    /**
+    * Rename directory or modify its attributes. When renaming directory the path can not be changed (it means new_name parameter can not contain path, name only).
+    * @param projectName {String} Full directory path that should be modified (e.g. /MainPage/AboutUs).
+    * @param directory {String} New directory name.
+    * @param params {Object} New parameters for the directory.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    changeDirectory: function (projectName, directory, params, callback) {
+        return postApiCallWithFormData('project/' + projectName + '/change-directory', { name: directory }, params, callback);
+    },
+    /**
+    * Delete Crowdin project directory. All nested files and directories will be deleted too.
+    * @param projectName {String} Should contain the project identifier.
+    * @param directory {String} Directory path (or just name if the directory is in root).
+    * @param callback {Function} Callback to call on function completition.
+    */
+    deleteDirectory: function (projectName, directory, callback) {
+        return postApiCall('project/' + projectName + '/delete-directory', { name: directory}, callback);
     },
     /**
     * Download Crowdin project glossaries as TBX file.
@@ -199,31 +241,10 @@ module.exports = {
         return postApiCallWithFormData('project/' + projectName + '/upload-tm', { file: fileNameOrStream }, callback);
     },
     /**
-    * Add directory to Crowdin project.
-    * @param projectName {String} Should contain the project identifier.
-    * @param directory {String} Directory name (with path if nested directory should be created).
+    * Get supported languages list with Crowdin codes mapped to locale name and standardized codes.
     * @param callback {Function} Callback to call on function completition.
     */
-    createDirectory: function (projectName, directory, callback) {
-        return postApiCall('project/' + projectName + '/add-directory', { name: directory}, callback);
-    },
-    /**
-    * Rename directory or modify its attributes. When renaming directory the path can not be changed (it means new_name parameter can not contain path, name only).
-    * @param projectName {String} Full directory path that should be modified (e.g. /MainPage/AboutUs).
-    * @param directory {String} New directory name.
-    * @param params {Object} New parameters for the directory.
-    * @param callback {Function} Callback to call on function completition.
-    */
-    changeDirectory: function (projectName, directory, params, callback) {
-        return postApiCallWithFormData('project/' + projectName + '/change-directory', { name: directory }, params, callback);
-    },
-    /**
-    * Delete Crowdin project directory. All nested files and directories will be deleted too.
-    * @param projectName {String} Should contain the project identifier.
-    * @param directory {String} Directory path (or just name if the directory is in root).
-    * @param callback {Function} Callback to call on function completition.
-    */
-    deleteDirectory: function (projectName, directory, callback) {
-        return postApiCall('project/' + projectName + '/delete-directory', { name: directory}, callback);
+    supportedLanguages: function (callback) {
+        getApiCall('supported-languages', callback);
     }
 };

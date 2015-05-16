@@ -44,5 +44,6 @@ var handleTestResult = function (err, data) {
 //api.deleteDirectory(config.project_identifier, 'test', handleTestResult);
 //api.changeDirectory(config.project_identifier, 'test', { new_name: 'test1', title: 'Test directory', export_pattern: '%original_path%/%two_letters_code%' }, handleTestResult);
 //api.changeDirectory(config.project_identifier, 'test1', { new_name: 'test', title: '', export_pattern: 'test' }, handleTestResult);
+//api.editProject(config.project_identifier, { name: 'Cordova test 1' }, handleTestResult);
 
 module.exports = api;
