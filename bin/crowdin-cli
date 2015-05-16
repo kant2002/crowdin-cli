@@ -19,6 +19,11 @@ var yargs = require('yargs')
         describe: 'Output file to which download translations',
         type: 'string'
     })
+    .option('c', {
+        alias : 'config',
+        describe: 'Configuration file',
+        type: 'string'
+    })
     .usage('Usage: $0 [-v] [command] [command options] [arguments...]\n' +
         '\n' +
         'crowdin-cli is a command line tool that allows you to manage and synchronize your localization resources with Crowdin project\n' +
@@ -35,7 +40,7 @@ var argv = yargs.argv;
 var api = require('../api'),
     YAML = require('yamljs'),
     fs = require('fs'),
-    configFileName = 'crowdin.yaml';
+    configFileName = argv.config || 'crowdin.yaml';
 
 function getConfig() {
     if (!fs.existsSync(configFileName)) {
