@@ -25,13 +25,17 @@ if (config.base_url !== undefined) {
 }
 
 api.setKey(config.api_key);
-/*api.projectInfo(config.project_identifier, function (err, data) {
+var handleTestResult = function (err, data) {
+    if (err) {
+        throw err;
+    }
+
     console.log(data);
-});*/
-/*api.supportedLanguages(function (err, data) {
-    console.log(data);
-});*/
+};
+/*api.projectInfo(config.project_identifier, handleTestResult);*/
+/*api.supportedLanguages();*/
 //api.downloadTranslations(config.project_identifier, 'es').pipe(fs.createWriteStream('es.zip'));
-api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
+//api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
+api.downloadTranslationMemory(config.project_identifier).pipe(fs.createWriteStream('cordova.tmx'));
 
 module.exports = api;

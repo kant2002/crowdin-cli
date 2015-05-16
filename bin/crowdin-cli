@@ -112,6 +112,18 @@ case 'downloadGlossary':
     console.log("Output saving to " + output_file);
     translationGlossary_request.pipe(fs.createWriteStream(output_file));
     break;
+case 'downloadTM':
+    var config = getConfig(),
+        output_file,
+        translationGlossary_request;
+    getApi(config);
+    console.log("Downloading translation memory");
+    output_file = argv.output || config.project_identifier + '.tbx';
+    translationGlossary_request = api.downloadTranslationMemory(config.project_identifier);
+
+    console.log("Output saving to " + output_file);
+    translationGlossary_request.pipe(fs.createWriteStream(output_file));
+    break;
 case 'export':
     var config = getConfig();
     getApi(config);

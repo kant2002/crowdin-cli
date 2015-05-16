@@ -68,9 +68,19 @@ module.exports = {
     setKey: function (newKey) {
         apiKey = newKey;
     },
+    /**
+    * Track your Crowdin project translation progress by language.
+    * @param projectName {String} Should contain the project identifier.
+    * @param callback {Function} Callback which returns object with information.
+    */
     translationStatus: function (projectName, callback) {
         postApiCall('project/' + projectName + '/status', callback);
     },
+    /**
+    * Get Crowdin Project details.
+    * @param projectName {String} Should contain the project identifier.
+    * @param callback {Function} Callback which returns object with information.
+    */
     projectInfo: function (projectName, callback) {
         postApiCall('project/' + projectName + '/info', callback);
     },
@@ -102,5 +112,11 @@ module.exports = {
     */
     downloadGlossary: function (projectName) {
         return getApiRequest('project/' + projectName + '/download-glossary');
+    },
+    /**
+    * Download Crowdin project Translation Memory as TMX file.
+    */
+    downloadTranslationMemory: function (projectName) {
+        return getApiRequest('project/' + projectName + '/download-tm');
     }
 };
