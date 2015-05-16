@@ -19,6 +19,11 @@ var yargs = require('yargs')
         describe: 'Output file to which download translations',
         type: 'string'
     })
+    .option('s', {
+        alias : 'source',
+        describe: 'Source file which is used for uploading operations',
+        type: 'string'
+    })
     .option('c', {
         alias : 'config',
         describe: 'Configuration file',
@@ -118,11 +123,43 @@ case 'downloadTM':
         translationGlossary_request;
     getApi(config);
     console.log("Downloading translation memory");
-    output_file = argv.output || config.project_identifier + '.tbx';
+    output_file = argv.output || config.project_identifier + '.tmx';
     translationGlossary_request = api.downloadTranslationMemory(config.project_identifier);
 
     console.log("Output saving to " + output_file);
     translationGlossary_request.pipe(fs.createWriteStream(output_file));
+    break;
+case 'uploadGlossary':
+    var config = getConfig(),
+        source_file,
+        uploadGlossary_request;
+    getApi(config);
+    console.log("Uploading translation memory");
+    source_file = argv.source || config.project_identifier + '.tbx';
+    console.log("Upload from " + source_file);
+    api.uploadGlossary(config.project_identifier, source_file, function (error) {
+        if (error) {
+            throw error;
+        }
+        
+        console.log("Done.");
+    });
+    break;
+case 'uploadTM':
+    var config = getConfig(),
+        source_file,
+        uploadGlossary_request;
+    getApi(config);
+    console.log("Uploading translation memory");
+    source_file = argv.source || config.project_identifier + '.tmx';
+    console.log("Upload from " + source_file);
+    api.uploadTranslationMemory(config.project_identifier, source_file, function (error) {
+        if (error) {
+            throw error;
+        }
+        
+        console.log("Done.");
+    });
     break;
 case 'export':
     var config = getConfig();

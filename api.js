@@ -2,6 +2,7 @@
 'use strict';
 
 var https = require('https'),
+    fs = require('fs'),
     request = require('request'),
     apiKey,
     baseUrl = 'https://api.crowdin.com',
@@ -39,10 +40,42 @@ function postApiCall(apiUrl, callback) {
     }
 
     return request.post(url, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            callback(null, JSON.parse(body));
+        if (callback) {
+            if (!error && response.statusCode === 200) {
+                callback(null, JSON.parse(body));
+            } else {
+                callback(error);
+            }
         } else {
-            callback(error);
+            if (error) {
+                throw error;
+            }
+        }
+    });
+}
+
+function postApiCallWithFile(apiUrl, file, callback) {
+    validateKey();
+    var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey,
+        formData = {
+            file: file
+        };
+    if (verbose > 0) {
+        console.log("Doing POST request:");
+        console.log(url);
+    }
+
+    return request.post({ url: url, formData: formData }, function (error, response, body) {
+        if (callback) {
+            if (!error && response.statusCode === 200) {
+                callback(null, JSON.parse(body));
+            } else {
+                callback(error);
+            }
+        } else {
+            if (error) {
+                throw error;
+            }
         }
     });
 }
@@ -114,9 +147,36 @@ module.exports = {
         return getApiRequest('project/' + projectName + '/download-glossary');
     },
     /**
-    * Download Crowdin project Translation Memory as TMX file.
+    * Upload your glossaries for Crowdin Project in TBX file format.
+    * @param projectName {String} Should contain the project identifier.
+    * @param fileNameOrStream {String} Name of the file to upload or stream which contains file to upload.
+    * @param callback {Function} Callback to call on function completition.
     */
-    downloadTranslationMemory: function (projectName) {
-        return getApiRequest('project/' + projectName + '/download-tm');
+    uploadGlossary: function (projectName, fileNameOrStream, callback) {
+        if (typeof fileNameOrStream === "string") {
+            fileNameOrStream = fs.createReadStream(fileNameOrStream);
+        }
+
+        return postApiCallWithFile('project/' + projectName + '/upload-glossary', fileNameOrStream, callback);
+    },
+    /**
+    * Download Crowdin project Translation Memory as TMX file.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    downloadTranslationMemory: function (projectName, callback) {
+        return postApiCall('project/' + projectName + '/download-tm', callback);
+    },
+    /**
+    * Upload your Translation Memory for Crowdin Project in TMX file format.
+    * @param projectName {String} Should contain the project identifier.
+    * @param fileNameOrStream {String} Name of the file to upload or stream which contains file to upload.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    uploadTranslationMemory: function (projectName, fileNameOrStream, callback) {
+        if (typeof fileNameOrStream === "string") {
+            fileNameOrStream = fs.createReadStream(fileNameOrStream);
+        }
+
+        return postApiCallWithFile('project/' + projectName + '/upload-tm', fileNameOrStream, callback);
     }
 };

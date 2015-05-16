@@ -32,10 +32,13 @@ var handleTestResult = function (err, data) {
 
     console.log(data);
 };
-/*api.projectInfo(config.project_identifier, handleTestResult);*/
+//api.projectInfo(config.project_identifier, handleTestResult);
 /*api.supportedLanguages();*/
 //api.downloadTranslations(config.project_identifier, 'es').pipe(fs.createWriteStream('es.zip'));
 //api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
-api.downloadTranslationMemory(config.project_identifier).pipe(fs.createWriteStream('cordova.tmx'));
+//api.downloadTranslationMemory(config.project_identifier).pipe(fs.createWriteStream('cordova.tmx'));
+//api.uploadGlossary(config.project_identifier, 'cordova.tbx');
+api.uploadGlossary(config.project_identifier, fs.createReadStream('cordova.tbx'));
+//api.uploadTranslationMemory(config.project_identifier, 'cordova.tmx');
 
 module.exports = api;
