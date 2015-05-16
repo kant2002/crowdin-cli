@@ -121,6 +121,88 @@ module.exports = {
         apiKey = newKey;
     },
     /**
+    * Add new file to Crowdin project
+    * @param projectName {String} Should contain the project identifier
+    * @param files {Array} Files array that should be added to Crowdin project.
+    *   Array keys should contain file names with path in Crowdin project.
+    *   Note! 20 files max are allowed to upload per one time file transfer.
+    * @param params {Object} Information about uploaded files.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    addFile: function (projectName, files, params, callback) {
+        if (callback === undefined) {
+            callback = params;
+            params = {};
+        }
+
+        var filesInformation = {};
+
+        files.forEach(function (fileName) {
+            var index = "files[" + fileName + "]";
+            filesInformation[index] = fs.createReadStream(fileName);
+        });
+
+        return postApiCallWithFormData('project/' + projectName + '/add-file', extend(filesInformation, params), callback);
+    },
+    /**
+    * Upload latest version of your localization file to Crowdin.
+    * @param projectName {String} Should contain the project identifier
+    * @param files {Array} Files array that should be updated.
+    *   Note! 20 files max are allowed to upload per one time file transfer.
+    * @param params {Object} Information about updated files.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    updateFile: function (projectName, files, params, callback) {
+        if (callback === undefined) {
+            callback = params;
+            params = {};
+        }
+
+        var filesInformation = {};
+
+        files.forEach(function (fileName) {
+            var index = "files[" + fileName + "]";
+            filesInformation[index] = fs.createReadStream(fileName);
+        });
+
+        return postApiCallWithFormData('project/' + projectName + '/update-file', extend(filesInformation, params), callback);
+    },
+    /**
+    * Delete file from Crowdin project. All the translations will be lost without ability to restore them.
+    * @param projectName {String} Should contain the project identifier
+    * @param fileName {String} Name of file to delete.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    deleteFile: function (projectName, fileName, callback) {
+        return postApiCallWithFormData('project/' + projectName + '/delete-file', { file: fileName }, callback);
+    },
+    /**
+    * Upload existing translations to your Crowdin project
+    * @param projectName {String} Should contain the project identifier
+    * @param files {Array} Translated files array. Array keys should contain file names in Crowdin.
+    *   Note! 20 files max are allowed to upload per one time file transfer.
+    * @param language {String} Target language. With a single call it's possible to upload translations for several files but only into one of the languages
+    * @param params {Object} Information about updated files.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    updateTranslations: function (projectName, files, language, params, callback) {
+        if (callback === undefined) {
+            callback = params;
+            params = {};
+        }
+
+        var filesInformation = {
+            language: language
+        };
+
+        files.forEach(function (fileName) {
+            var index = "files[" + fileName + "]";
+            filesInformation[index] = fs.createReadStream(fileName);
+        });
+
+        return postApiCallWithFormData('project/' + projectName + '/upload-translation', extend(filesInformation, params), callback);
+    },
+    /**
     * Track your Crowdin project translation progress by language.
     * @param projectName {String} Should contain the project identifier.
     * @param callback {Function} Callback which returns object with information.

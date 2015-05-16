@@ -28,6 +28,7 @@ node_modules
 .lock-wscript
 
 
+test/
 *.yaml
 *.zip
 *.tbx
