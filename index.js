@@ -33,12 +33,16 @@ var handleTestResult = function (err, data) {
     console.log(data);
 };
 //api.projectInfo(config.project_identifier, handleTestResult);
-/*api.supportedLanguages();*/
+//api.supportedLanguages(handleTestResult);
 //api.downloadTranslations(config.project_identifier, 'es').pipe(fs.createWriteStream('es.zip'));
 //api.downloadAllTranslations(config.project_identifier).pipe(fs.createWriteStream('all.zip'));
 //api.downloadTranslationMemory(config.project_identifier).pipe(fs.createWriteStream('cordova.tmx'));
 //api.uploadGlossary(config.project_identifier, 'cordova.tbx');
-api.uploadGlossary(config.project_identifier, fs.createReadStream('cordova.tbx'));
+//api.uploadGlossary(config.project_identifier, fs.createReadStream('cordova.tbx'));
 //api.uploadTranslationMemory(config.project_identifier, 'cordova.tmx');
+//api.createDirectory(config.project_identifier, 'test', handleTestResult);
+//api.deleteDirectory(config.project_identifier, 'test', handleTestResult);
+//api.changeDirectory(config.project_identifier, 'test', { new_name: 'test1', title: 'Test directory', export_pattern: '%original_path%/%two_letters_code%' }, handleTestResult);
+//api.changeDirectory(config.project_identifier, 'test1', { new_name: 'test', title: '', export_pattern: 'test' }, handleTestResult);
 
 module.exports = api;

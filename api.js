@@ -1,9 +1,11 @@
-/*jslint node: true*/
+/*jslint node: true, nomen: true*/
 'use strict';
 
 var https = require('https'),
     fs = require('fs'),
+    querystring = require('querystring'),
     request = require('request'),
+    extend = require('util')._extend,
     apiKey,
     baseUrl = 'https://api.crowdin.com',
     verbose = 0;
@@ -16,30 +18,14 @@ function validateKey() {
 
 function getApiCall(apiUrl, callback) {
     validateKey();
-    var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey;
+    var url = baseUrl + '/api/' + apiUrl,
+        params = { json: true, key: apiKey };
     if (verbose > 0) {
         console.log("Doing GET request:");
         console.log(url);
     }
 
-    return request.get(url, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            callback(null, JSON.parse(body));
-        } else {
-            callback(error);
-        }
-    });
-}
-
-function postApiCall(apiUrl, callback) {
-    validateKey();
-    var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey;
-    if (verbose > 0) {
-        console.log("Doing POST request:");
-        console.log(url);
-    }
-
-    return request.post(url, function (error, response, body) {
+    return request.get({ url: url, qs: params }, function (error, response, body) {
         if (callback) {
             if (!error && response.statusCode === 200) {
                 callback(null, JSON.parse(body));
@@ -54,18 +40,51 @@ function postApiCall(apiUrl, callback) {
     });
 }
 
-function postApiCallWithFile(apiUrl, file, callback) {
+function postApiCall(apiUrl, getOptions, callback) {
     validateKey();
-    var url = baseUrl + '/api/' + apiUrl + '?json=true&key=' + apiKey,
-        formData = {
-            file: file
-        };
+    if (callback === undefined) {
+        callback = getOptions;
+        getOptions = {};
+    }
+
+    var url = baseUrl + '/api/' + apiUrl,
+        params = extend(getOptions, { json: true, key: apiKey });
     if (verbose > 0) {
         console.log("Doing POST request:");
         console.log(url);
     }
 
-    return request.post({ url: url, formData: formData }, function (error, response, body) {
+    return request.post({ url: url, qs: params }, function (error, response, body) {
+        if (callback) {
+            if (!error && response.statusCode === 200) {
+                callback(null, JSON.parse(body));
+            } else {
+                callback(error);
+            }
+        } else {
+            if (error) {
+                throw error;
+            }
+        }
+    });
+}
+
+function postApiCallWithFormData(apiUrl, getOptions, postOptions, callback) {
+    validateKey();
+    if (callback === undefined) {
+        callback = postOptions;
+        postOptions = getOptions;
+        getOptions = {};
+    }
+
+    var url = baseUrl + '/api/' + apiUrl,
+        params = extend(getOptions, { json: true, key: apiKey });
+    if (verbose > 0) {
+        console.log("Doing POST request:");
+        console.log(url);
+    }
+
+    return request.post({ url: url, qs: params, formData: postOptions || {} }, function (error, response, body) {
         if (callback) {
             if (!error && response.statusCode === 200) {
                 callback(null, JSON.parse(body));
@@ -157,7 +176,7 @@ module.exports = {
             fileNameOrStream = fs.createReadStream(fileNameOrStream);
         }
 
-        return postApiCallWithFile('project/' + projectName + '/upload-glossary', fileNameOrStream, callback);
+        return postApiCallWithFormData('project/' + projectName + '/upload-glossary', { file: fileNameOrStream }, callback);
     },
     /**
     * Download Crowdin project Translation Memory as TMX file.
@@ -177,6 +196,34 @@ module.exports = {
             fileNameOrStream = fs.createReadStream(fileNameOrStream);
         }
 
-        return postApiCallWithFile('project/' + projectName + '/upload-tm', fileNameOrStream, callback);
+        return postApiCallWithFormData('project/' + projectName + '/upload-tm', { file: fileNameOrStream }, callback);
+    },
+    /**
+    * Add directory to Crowdin project.
+    * @param projectName {String} Should contain the project identifier.
+    * @param directory {String} Directory name (with path if nested directory should be created).
+    * @param callback {Function} Callback to call on function completition.
+    */
+    createDirectory: function (projectName, directory, callback) {
+        return postApiCall('project/' + projectName + '/add-directory', { name: directory}, callback);
+    },
+    /**
+    * Rename directory or modify its attributes. When renaming directory the path can not be changed (it means new_name parameter can not contain path, name only).
+    * @param projectName {String} Full directory path that should be modified (e.g. /MainPage/AboutUs).
+    * @param directory {String} New directory name.
+    * @param params {Object} New parameters for the directory.
+    * @param callback {Function} Callback to call on function completition.
+    */
+    changeDirectory: function (projectName, directory, params, callback) {
+        return postApiCallWithFormData('project/' + projectName + '/change-directory', { name: directory }, params, callback);
+    },
+    /**
+    * Delete Crowdin project directory. All nested files and directories will be deleted too.
+    * @param projectName {String} Should contain the project identifier.
+    * @param directory {String} Directory path (or just name if the directory is in root).
+    * @param callback {Function} Callback to call on function completition.
+    */
+    deleteDirectory: function (projectName, directory, callback) {
+        return postApiCall('project/' + projectName + '/delete-directory', { name: directory}, callback);
     }
 };
