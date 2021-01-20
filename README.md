@@ -1,6 +1,8 @@
 # crowdin-cli
 Node.js CLI tool for the CrowdIn
 
+**Note**: there's now an official [@crowdin/cli](https://www.npmjs.com/package/@crowdin/cli) npm package to run the official Java-based CLI.
+
 ## Downloading content
 Download the translated content for the project. You could download specific language, or download all languages.
 
